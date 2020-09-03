@@ -1,0 +1,6 @@
+name: Server-News
+main: com.github.srain3.Main
+version: "0.1.0"
+api-version: "1.16"
+author: Srain3
+website: "https://github.com/Srain3"
