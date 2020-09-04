@@ -1,11 +1,11 @@
 name: Server-News
 main: com.github.srain3.Main
-version: "0.1.0"
+version: "0.4.12"
 api-version: "1.16"
 author: Srain3
 website: "https://github.com/Srain3/Server-News"
 
 commands:
   oyasainews:
-    usage: "/<command> [option]"
+    usage: "/<command>"
     description: "おやさい鯖のお知らせ用コマンド"
