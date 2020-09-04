@@ -1,5 +1,8 @@
 package com.github.srain3
 
+import net.luckperms.api.LuckPermsProvider
+import net.luckperms.api.context.ContextManager
+import net.luckperms.api.query.QueryOptions
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -17,18 +20,35 @@ class Main : JavaPlugin() {
 
     override fun onCommand(sender: CommandSender, cmd: Command, label: String, args: Array<out String>): Boolean {
         if(sender is Player){
+            val luckperms = LuckPermsProvider.get()
+            fun hasPerm(p: Player, permission: String): Boolean {
+                if (!p.isOnline) throw IllegalArgumentException("Player is Offile")
+                val user = luckperms.userManager.getUser(p.uniqueId)!!
+                val contextManager: ContextManager = luckperms.contextManager
+                val contextSet = contextManager.getContext(user).orElseGet { contextManager.staticContext }
+                val permissionData = user.cachedData.getPermissionData(QueryOptions.contextual(contextSet))
+                return permissionData.checkPermission(permission).asBoolean()
+            }
             if(args.isNotEmpty()) {
-                if(args[0].equals("add")) {
-                    addItem(player = sender)
-                    sender.sendMessage("お知らせを上書きしました")
+                    if (args[0].equals("add")) {
+                        if(hasPerm(p = sender,permission = cmd.permission.toString()+".add")) {
+                            addItem(player = sender)
+                            sender.sendMessage("お知らせを上書きしました")
+                        } else {
+                            sender.sendMessage("オプションが違います")
+                            return false
+                        }
                     } else {
-                    sender.sendMessage("オプションが違います")
-                    return false
+                        sender.sendMessage("オプションが違います")
+                        return false
                     }
                 } else {
-                setItem(player = sender)
+                if (hasPerm(p = sender, permission = cmd.permission.toString())) {
+                    setItem(player = sender)
                 }
+            }
                 return true
+
         } else{
             sender.sendMessage("プレイヤーのみ実行可能です")
         }
