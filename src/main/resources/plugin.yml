@@ -1,32 +1,32 @@
 name: Server-News
 main: com.github.srain3.Main
-version: "0.5.18"
+version: "0.8.17"
 api-version: "1.16"
 author: Srain3
 description: "お知らせ用の本を登録/入手できるプラグイン"
 website: "https://github.com/Srain3/Server-News"
 softdepend:
-  - LuckPerms
+ - LuckPerms
 
 commands:
-  oyasainews:
-    usage: "/<command>"
-    description: "おやさい鯖のお知らせ用コマンド"
-    permission: servernews.oyasainews.get
-    permission-message: "No permission!"
-    aliases:
-      - onews
+ oyasainews:
+  usage: "/<command>"
+  description: "おやさい鯖のお知らせ用コマンド"
+  permission: servernews.oyasainews.get
+  permission-message: "No permission!"
+  aliases:
+    - onews
 
 
 permissions:
-  servernews.oyasainews.*:
-    description: "oyasainewsのすべての親"
-    children:
-      servernews.oyasainews.add: true
-      servernews.oyasainews.get: true
-  servernews.oyasainews.add:
-    description: "oyasainews上書き権限"
-    default: op
-  servernews.oyasainews.get:
-    description: "oyasainews取得権限"
-    default: true
+ servernews.oyasainews.*:
+  description: "oyasainewsのすべての親"
+  children:
+   servernews.oyasainews.add: true
+   servernews.oyasainews.get: true
+ servernews.oyasainews.add:
+  description: "oyasainews上書き権限"
+  default: op
+ servernews.oyasainews.get:
+  description: "oyasainews取得権限"
+  default: true

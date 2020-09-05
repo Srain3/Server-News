@@ -10,12 +10,14 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
 class Main : JavaPlugin() {
-    private lateinit var i: ItemStack
+    lateinit var i: ItemStack
 
     override fun onEnable() {
         this.saveDefaultConfig()
         config
         i = config.getItemStack("data")!!
+        server.pluginManager.registerEvents(JoinOpenBook, this)
+        JoinOpenBook.getBook(this)
     }
 
     override fun onCommand(sender: CommandSender, cmd: Command, label: String, args: Array<out String>): Boolean {
@@ -33,7 +35,6 @@ class Main : JavaPlugin() {
                     if (args[0].equals("add")) {
                         if(hasPerm(p = sender,permission = cmd.permission.toString()+".add")) {
                             addItem(player = sender)
-                            sender.sendMessage("お知らせを上書きしました")
                         } else {
                             sender.sendMessage("オプションが違います")
                             return false
@@ -57,17 +58,18 @@ class Main : JavaPlugin() {
 
     private fun addItem(player: Player) {
         i = player.inventory.itemInMainHand
-        config.set("data", i)
-        saveConfig()
-    }
-    private fun setItem(player: Player){
-        val slot = player.inventory.itemInMainHand
-        if(slot.type.isAir) {
-            player.inventory.setItemInMainHand(i)
-            player.sendMessage("お知らせ本を入手しました")
+        if(i.type.toString().equals("WRITTEN_BOOK")) {
+            config.set("data", i)
+            saveConfig()
+            player.sendMessage("お知らせを上書きしました")
+            JoinOpenBook.getBook(this)
         } else {
-            player.sendMessage("メインハンドが空いてません！入手を中止しました")
+            i = config.getItemStack("data")!!
+            player.sendMessage("本じゃないアイテムです！上書きを中止しました")
         }
+    }
+    private fun setItem(player: Player) {
+        player.openBook(i)
     }
 
     override fun onDisable() {
