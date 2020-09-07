@@ -5,9 +5,42 @@ main:
   meta:
     ==: ItemMeta
     meta-type: BOOK_SIGNED
-    title: v1
+    title: DefaultBook
     author: Srain3
     pages:
-      - v1_デフォルトテスト用
+      - |-
+        ServerNewsPLの使い方
+        /oyasainews や /onewsで
+        メインのお知らせを開きます。
+        オプションは次のページ
+      - |-
+        -=[add] [BookName]=-
+        このオプションは
+        [BookName]という名前で
+        本を保存するコマンドです
+        [BookName]でmainを指定すると
+        Join時に開く本を更新できます
+        記入済みの本のみ保存します。
+      - |-
+        -=[open] [BookName]=-
+        このオプションは
+        [BookName]という名前で
+        登録されている本を開くコマンド
+        [BookName]にmainと入力すると
+        オプション無しと同じです
+        (メインのお知らせ表示する)
+      - |-
+        -=[get] [BookName]=-
+        このオプションは
+        [BookName]という名前で
+        登録されている本を
+        編集できる状態で取得するコマンド
+      - |-
+        -=[remove] [BookName]=-
+        このオプションは
+        [BookName]という名前で
+        登録されている本の設定を
+        消去するコマンドです。
+        configから即消しなので注意
 mainversion: 1
 playerdata:

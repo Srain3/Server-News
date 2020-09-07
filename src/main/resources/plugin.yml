@@ -1,14 +1,39 @@
 name: Server-News
 main: com.github.srain3.Main
-version: "0.9.51"
+version: "0.9.58"
 api-version: "1.16"
 author: Srain3
 description: "お知らせ用の本を登録/入手できるプラグイン"
 website: "https://github.com/Srain3/Server-News"
+softdepend:
+  - LuckPerms
 
 commands:
  oyasainews:
   usage: "/<command>"
   description: "おやさい鯖のお知らせ用コマンド"
+  permission: servernews.oyasainews
+  permission-message: "No Permission!"
   aliases:
     - onews
+
+permissions:
+  servernews.oyasainews.*:
+    description: "oyasainews ALLコマンド"
+    children:
+      servernews.oyasainews.open: true
+      servernews.oyasainews.add: true
+      servernews.oyasainews.get: true
+      servernews.oyasainews.remove: true
+  servernews.oyasainews.open:
+    description: "oyasainews open権限(オプション無しで開くにもコレ必要)"
+    default: true
+  servernews.oyasainews.add:
+    description: "oyasainews add権限(管理限定を推奨)"
+    default: op
+  servernews.oyasainews.get:
+    description: "oyasainews get権限(管理限定を推奨)"
+    default: op
+  servernews.oyasainews.remove:
+    description: "oyasainews remove権限(管理限定を推奨)"
+    default: op
