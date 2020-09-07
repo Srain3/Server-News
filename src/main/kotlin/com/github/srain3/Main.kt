@@ -32,10 +32,10 @@ class Main : JavaPlugin() {
         args: Array<out String>
     ): MutableList<String>? {
         if (sender is Player) {
-            if (!command.name.equals("oyasainews")) return super.onTabComplete(sender, command, alias, args)
+            if (command.name != "oyasainews") return super.onTabComplete(sender, command, alias, args)
             if (args.size == 1) {
                 if (args[0].isEmpty()) { // /testまで
-                    return Arrays.asList("open")
+                    return Arrays.asList("open","booklist")
                 } else {
                     //入力されている文字列と先頭一致
                     when (args[0].isNotEmpty()) {
@@ -43,6 +43,7 @@ class Main : JavaPlugin() {
                         "add".startsWith(args[0]) -> return Arrays.asList("add")
                         "get".startsWith(args[0]) -> return Arrays.asList("get")
                         "remove".startsWith(args[0]) -> return Arrays.asList("remove")
+                        "booklist".startsWith(args[0]) -> return Arrays.asList("booklist")
                         else -> {
                             //JavaPlugin#onTabComplete()を呼び出す
                             return super.onTabComplete(sender, command, alias, args)
@@ -89,7 +90,7 @@ class Main : JavaPlugin() {
                             if (book != null) { // [BookName]にデータはあるか？
                                 // データが有る場合
                                 sender.openBook(book) //権限がある場合本を開く
-                                if (args[1].equals("main")) { // oyasainews open mainであるか？
+                                if (args[1] == "main") { // oyasainews open mainであるか？
                                     //mainだった場合、verの違いはあるか？
                                     if (config.getInt("playerdata.${sender.name}") != mainver) {
                                         //verが違う場合、現在のverをconfigへ保存
@@ -107,6 +108,18 @@ class Main : JavaPlugin() {
                     sender.sendMessage("権限がありません！")
                     return true
                 }
+                "booklist" -> { // oyasainews booklistである場合
+                    if (hasPerm(sender,command.permission.toString()+".booklist")){ //booklist権限は？
+                        val booklist0 = config.getKeys(false)
+                        val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
+                        val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
+                        val booklist = booklist2.filterNot { it == "playerdata" } //いらないplayerdataを除外
+                        sender.sendMessage(booklist.toString())
+                        return true
+                    } // 権限がない場合
+                    sender.sendMessage("権限がありません！")
+                    return true
+                }
                 "add" -> { // oyasainews addである場合
                     if(hasPerm(sender,command.permission.toString()+".add")) { //add権限はあるか？
                         val item = sender.inventory.itemInMainHand // 権限があればメインハンドのアイテム入手
@@ -114,9 +127,21 @@ class Main : JavaPlugin() {
                             //記入済みの本だった場合
                             if (args.getOrNull(1) != null) { // oyasainews addの後に引数は？
                                 //引数がある場合
+                                if (args[1] == "mainversion"){ //mainversionだった場合キャンセルする
+                                    sender.sendMessage("mainversionは変更できません！")
+                                    return true
+                                } //mainversionでなければ続行
+                                if (args[1] == "spawnlocation"){ //spawnlocationだった場合キャンセルする
+                                    sender.sendMessage("spawnlocationは変更できません！")
+                                    return true
+                                }
+                                if (args[1] == "playerdata") {
+                                    sender.sendMessage("playerdataは変更できません！")
+                                    return true
+                                }
                                 config.set(args[1], item); saveConfig() // configへセーブ
                                 sender.sendMessage("${args[1]}を上書きしました")
-                                if (args[1].equals("main")) { // oyasainews add mainか？
+                                if (args[1] == "main") { // oyasainews add mainか？
                                     // mainである場合、関数mainbookを更新&mainversionカウントを増やす&configへ保存
                                     mainbook = item
                                     mainver += 1
@@ -159,15 +184,15 @@ class Main : JavaPlugin() {
                 "remove" -> { // oyasainews removeの場合
                     if(hasPerm(sender,command.permission.toString()+".remove")) { //remove権限はあるか？
                         if (args.getOrNull(1) != null) { // 権限があって、removeの後に引数は？
-                            //引数がある場合、それはmainであるか？
-                            if (args[1].equals("main")) {
-                                //mainの場合は警告してキャンセルする
-                                sender.sendMessage("mainは消せません！")
-                                return true
-                            } //mainではない場合
+                            when(args[1]){
+                                "main" -> {sender.sendMessage("mainは消去できません！"); return true}
+                                "mainversion" -> {sender.sendMessage("mainversionは消去できません！"); return true}
+                                "spawnlocation" -> {sender.sendMessage("spawnlocationは消去できません！"); return true}
+                                "playerdata" -> {sender.sendMessage("playerdataは消去できません！"); return true}
+                            }
                             val book = config.getItemStack(args[1])
                             if (book != null) { // [BookName]にデータはあるか？
-                                config.set(args[1], "${sender.name} is remove"); saveConfig()
+                                config.set(args[1], null); saveConfig()
                                 sender.sendMessage("${args[1]}を消去しました")
                                 return true
                             } //データがない場合
@@ -177,6 +202,15 @@ class Main : JavaPlugin() {
                         sender.sendMessage("/${label} remove [BookName]\nBookNameの部分が足りません！")
                         return true
                     } //remove権限がない場合
+                    sender.sendMessage("権限がありません！")
+                    return true
+                }
+                "setspawn" ->{
+                    if(hasPerm(sender,command.permission.toString()+".setspawn")){ //setspawn権限はあるか？
+                        config.set("spawnlocation",sender.location) ; saveConfig()
+                        sender.sendMessage("spawnのlocationを保存しました！")
+                        return true
+                    } //setspawn権限がない場合
                     sender.sendMessage("権限がありません！")
                     return true
                 }

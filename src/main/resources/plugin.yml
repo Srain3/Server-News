@@ -1,6 +1,6 @@
 name: Server-News
 main: com.github.srain3.Main
-version: "0.9.75"
+version: "0.9.87"
 api-version: "1.16"
 author: Srain3
 description: "お知らせ用の本を登録/入手できるプラグイン"
@@ -37,3 +37,9 @@ permissions:
   servernews.oyasainews.remove:
     description: "oyasainews remove権限(管理限定を推奨)"
     default: op
+  servernews.oyasainews.setspawn:
+    description: "oyasainews setspawn権限(管理限定を推奨)"
+    default: op
+  servernews.oyasainews.booklist:
+    description: "oyasainews booklist権限"
+    default: true
