@@ -1,11 +1,13 @@
-data:
+main:
   ==: org.bukkit.inventory.ItemStack
   v: 2578
   type: WRITTEN_BOOK
   meta:
     ==: ItemMeta
     meta-type: BOOK_SIGNED
-    title: v0.0.0
+    title: v1
     author: Srain3
     pages:
-      - デフォルトテスト用
+      - v1_デフォルトテスト用
+mainversion: 1
+playerdata:
