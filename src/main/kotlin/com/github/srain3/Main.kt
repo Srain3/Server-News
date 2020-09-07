@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.*
 
 class Main : JavaPlugin() {
     //変数作成
@@ -20,8 +21,37 @@ class Main : JavaPlugin() {
         config //config読み込み
         mainbook = config.getItemStack("main")!! //mainのItemStackデータを読み込み
         mainver = config.getInt("mainversion") //mainversionのIntデータを読み込み
-        server.pluginManager.registerEvents(JoinOpenBook,this) //イベント登録(JoinEventで本を開く)
+        server.pluginManager.registerEvents(JoinOpenBook, this) //イベント登録(JoinEventで本を開く)
         JoinOpenBook.joinEv(this) //JoinOpenBook内のfun joinEvにmainを渡す
+    }
+
+    override fun onTabComplete(
+        sender: CommandSender,
+        command: Command,
+        alias: String,
+        args: Array<out String>
+    ): MutableList<String>? {
+        if (sender is Player) {
+            if (!command.name.equals("oyasainews")) return super.onTabComplete(sender, command, alias, args)
+            if (args.size == 1) {
+                if (args[0].isEmpty()) { // /testまで
+                    return Arrays.asList("open")
+                } else {
+                    //入力されている文字列と先頭一致
+                    when (args[0].isNotEmpty()) {
+                        "open".startsWith(args[0]) -> return Arrays.asList("open")
+                        "add".startsWith(args[0]) -> return Arrays.asList("add")
+                        "get".startsWith(args[0]) -> return Arrays.asList("get")
+                        "remove".startsWith(args[0]) -> return Arrays.asList("remove")
+                        else -> {
+                            //JavaPlugin#onTabComplete()を呼び出す
+                            return super.onTabComplete(sender, command, alias, args)
+                        }
+                    }
+                }
+            }
+        }
+        return null
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
