@@ -1,6 +1,6 @@
 name: Server-News
 main: com.github.srain3.Main
-version: "0.9.87"
+version: "1.0.0"
 api-version: "1.16"
 author: Srain3
 description: "お知らせ用の本を登録/入手できるプラグイン"
@@ -13,33 +13,34 @@ commands:
   usage: "/<command>"
   description: "おやさい鯖のお知らせ用コマンド"
   permission: servernews.oyasainews
-  permission-message: "No Permission!"
+  permission-message: "No Permission!!!"
   aliases:
     - onews
 
 permissions:
-  servernews.oyasainews.*:
-    description: "oyasainews ALLコマンド"
+  servernews.oyasainews:
+    description: "oyasainews デフォルト権限(みんな持ってる)"
+    default: true
     children:
-      servernews.oyasainews.open: true
+     servernews.oyasainews.open: true
+     servernews.oyasainews.booklist: true
+  servernews.oyasainews.admin:
+    description: "oyasainews admin権限"
+    default: op
+    children:
       servernews.oyasainews.add: true
       servernews.oyasainews.get: true
       servernews.oyasainews.remove: true
+      servernews.oyasainews.setspawn: true
   servernews.oyasainews.open:
-    description: "oyasainews open権限(オプション無しで開くにもコレ必要)"
+    default: true
+  servernews.oyasainews.booklist:
     default: true
   servernews.oyasainews.add:
-    description: "oyasainews add権限(管理限定を推奨)"
     default: op
   servernews.oyasainews.get:
-    description: "oyasainews get権限(管理限定を推奨)"
     default: op
   servernews.oyasainews.remove:
-    description: "oyasainews remove権限(管理限定を推奨)"
     default: op
   servernews.oyasainews.setspawn:
-    description: "oyasainews setspawn権限(管理限定を推奨)"
     default: op
-  servernews.oyasainews.booklist:
-    description: "oyasainews booklist権限"
-    default: true

@@ -70,7 +70,7 @@ class Main : JavaPlugin() {
             }
             if(args.isNullOrEmpty()){ // oyasainewsの後に引数は？
                 // 引数がない場合
-                if(hasPerm(sender,command.permission.toString()+".open")) { //open権限はあるか？
+                if(hasPerm(sender,command.permission.toString() + ".open")) { //open権限はあるか？
                     sender.openBook(mainbook) // 権限があればメインの本を開く
                     if (config.getInt("playerdata.${sender.name}") != mainver) { // ログイン時に開いたverと違うか？
                         // 違う場合configへ保存
