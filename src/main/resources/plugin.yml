@@ -1,6 +1,6 @@
 name: Server-News
 main: com.github.srain3.Main
-version: "1.0.2"
+version: "1.1.0"
 api-version: "1.16"
 author: Srain3
 description: "お知らせ用の本を登録/入手できるプラグイン"
@@ -24,6 +24,7 @@ permissions:
     children:
      servernews.oyasainews.open: true
      servernews.oyasainews.booklist: true
+     servernews.oyasainews.color: true
   servernews.oyasainews.admin:
     description: "oyasainews admin権限"
     default: op
@@ -35,6 +36,8 @@ permissions:
   servernews.oyasainews.open:
     default: true
   servernews.oyasainews.booklist:
+    default: true
+  servernews.oyasainews.color:
     default: true
   servernews.oyasainews.add:
     default: op

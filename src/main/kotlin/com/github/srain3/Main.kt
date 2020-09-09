@@ -3,11 +3,13 @@ package com.github.srain3
 import net.luckperms.api.LuckPermsProvider
 import net.luckperms.api.context.ContextManager
 import net.luckperms.api.query.QueryOptions
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.BookMeta
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
@@ -35,15 +37,16 @@ class Main : JavaPlugin() {
             if (command.name != "oyasainews") return super.onTabComplete(sender, command, alias, args)
             if (args.size == 1) {
                 if (args[0].isEmpty()) {
-                    return Arrays.asList("open","booklist")
+                    return Arrays.asList("open","booklist","color")
                 } else {
                     //入力されている文字列と先頭一致
                     when (args[0].isNotEmpty()) {
                         "open".startsWith(args[0]) -> return Arrays.asList("open")
+                        "booklist".startsWith(args[0]) -> return Arrays.asList("booklist")
+                        "color".startsWith(args[0]) -> return Arrays.asList("color")
                         "add".startsWith(args[0]) -> return Arrays.asList("add")
                         "get".startsWith(args[0]) -> return Arrays.asList("get")
                         "remove".startsWith(args[0]) -> return Arrays.asList("remove")
-                        "booklist".startsWith(args[0]) -> return Arrays.asList("booklist")
                         else -> {
                             //JavaPlugin#onTabComplete()を呼び出す
                             return super.onTabComplete(sender, command, alias, args)
@@ -137,11 +140,36 @@ class Main : JavaPlugin() {
                     sender.sendMessage("権限がありません！")
                     return true
                 }
+                "color" -> { // oyasainews color
+                    if(hasPerm(sender,command.permission.toString()+".color")){ //color権限
+                        val oldbook = sender.inventory.itemInMainHand
+                        if (oldbook.type == Material.WRITABLE_BOOK){ //本と羽根ペン？
+                            val book: BookMeta = oldbook.itemMeta as BookMeta
+                            val newbmeta = ChatColor.translateAlternateColorCodes('$', book.pages.toString().removePrefix("[").removeSuffix("]"))
+                            val newbook0 = newbmeta.split(", ").toList()
+                            book.pages = newbook0
+                            oldbook.itemMeta = book
+                            sender.inventory.setItemInMainHand(oldbook)
+                            sender.sendMessage("変換しました！")
+                            return true
+                        } //アイテム違い
+                        sender.sendMessage("非対応アイテムです")
+                        return true
+                    } //権限なし
+                    sender.sendMessage("権限がありません！")
+                    return true
+                }
                 "add" -> { // oyasainews addである場合
                     if(hasPerm(sender,command.permission.toString()+".add")) { //add権限はあるか？
                         val item = sender.inventory.itemInMainHand // 権限があればメインハンドのアイテム入手
                         if (item.type == Material.WRITTEN_BOOK) { //アイテムは記入済みの本？
                             //記入済みの本だった場合
+                            val book: BookMeta = item.itemMeta as BookMeta
+                            val newbmeta = ChatColor.translateAlternateColorCodes('$', book.pages.toString().removePrefix("[").removeSuffix("]"))
+                            val newbook0 = newbmeta.split(", ").toList()
+                            book.pages = newbook0
+                            item.itemMeta = book
+                            sender.sendMessage("自動でColorコード($)変換しました！")
                             if (args.getOrNull(1) != null) { // oyasainews addの後に引数は？
                                 //引数がある場合
                                 if (args[1] == "mainversion"){ //mainversionだった場合キャンセルする
