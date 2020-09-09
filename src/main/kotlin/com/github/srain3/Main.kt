@@ -34,7 +34,7 @@ class Main : JavaPlugin() {
         if (sender is Player) {
             if (command.name != "oyasainews") return super.onTabComplete(sender, command, alias, args)
             if (args.size == 1) {
-                if (args[0].isEmpty()) { // /testまで
+                if (args[0].isEmpty()) {
                     return Arrays.asList("open","booklist")
                 } else {
                     //入力されている文字列と先頭一致
@@ -50,6 +50,23 @@ class Main : JavaPlugin() {
                         }
                     }
                 }
+            }
+            if (args.size == 2){
+                val booklist0 = config.getKeys(false)
+                val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
+                val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
+                val booklist3 = booklist2.filterNot { it == "playerdata" } //いらないplayerdataを除外
+                if (args[1].isNotEmpty()) {
+                    val size = booklist3.size.minus(1)
+                    val books = mutableListOf<String>()
+                    for (i in 0..size) {
+                        if (booklist3[i].startsWith(args[1])) {
+                            books.add(booklist3[i])
+                        }
+                    }
+                    return books.toMutableList()
+                }
+                return booklist3.toMutableList()
             }
         }
         return null
