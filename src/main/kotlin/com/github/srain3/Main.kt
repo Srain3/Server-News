@@ -3,6 +3,8 @@ package com.github.srain3
 import net.luckperms.api.LuckPermsProvider
 import net.luckperms.api.context.ContextManager
 import net.luckperms.api.query.QueryOptions
+import net.md_5.bungee.api.chat.*
+import net.md_5.bungee.api.chat.hover.content.Text
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.command.Command
@@ -17,6 +19,7 @@ class Main : JavaPlugin() {
     //変数作成
     lateinit var mainbook: ItemStack
     var mainver = 0
+    private var bookcash = mutableMapOf<String,ItemStack>()
 
     override fun onEnable() {
         saveDefaultConfig() //configがなければ作成
@@ -25,6 +28,228 @@ class Main : JavaPlugin() {
         mainver = config.getInt("mainversion") //mainversionのIntデータを読み込み
         server.pluginManager.registerEvents(JoinOpenBook, this) //イベント登録(JoinEventで本を開く)
         JoinOpenBook.joinEv(this) //JoinOpenBook内のfun joinEvにmainを渡す
+        val booklist0 = config.getKeys(false)
+        val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
+        val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
+        val booklist3 = booklist2.filterNot { it == "playerdata" } //いらないplayerdataを除外
+        for (i5 in 0..booklist3.size.minus(1)){
+            val book00 = config.getItemStack(booklist3[i5])!!
+            val book : BookMeta = book00.itemMeta as BookMeta
+            val newbook0 = book.pages.toString().removePrefix("[").removeSuffix("]").split(", ")
+            val url = """\[(§.)?http.*(§.)?]""".toRegex()
+            val table = """\[.*]\[[0-9]*]""".toRegex()
+            val cmd = """\{(§.)?/.*(§.)?}""".toRegex()
+            val urlandtable = """(\[(§.)?http.*(§.)?]|\[.*]\[[0-9]*]|\{(§.)?/.*(§.)?})""".toRegex()
+            var book5 = arrayOf<BaseComponent>()
+            for (i in 0..newbook0.size.minus(1)) {
+                val book3 = newbook0[i].split(urlandtable)
+                val book4 = url.findAll(newbook0[i]).toList()
+                val book41 = table.findAll(newbook0[i]).toList()
+                val book42 = cmd.findAll(newbook0[i]).toList()
+                if (book41.size == 0) {
+                    if (book42.size == 0) {
+                        if (book3.size == book4.size) {
+                            val book8: BaseComponent = TextComponent()
+                            for (i2 in 0..book3.size.minus(1)) {
+                                val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                val book7 =
+                                    ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                        book9.replace("""§.""".toRegex(), "")))
+                                        .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                            Text("§eClick to open!"))).currentComponent
+                                book8.addExtra(book6)
+                                book8.addExtra(book7)
+                            }
+                            book5 += book8
+                            continue
+                        } else {
+                            if (book4.size > book3.size) {
+                                val book8: BaseComponent = TextComponent()
+                                val count = 0
+                                for (i2 in 0..book3.size.minus(1)) {
+                                    val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                    val book7 =
+                                        ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                            book9.replace("""§.""".toRegex(), "")))
+                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Text("§eClick to open!"))).currentComponent
+                                    book8.addExtra(book6)
+                                    book8.addExtra(book7)
+                                    count.plus(1)
+                                }
+                                for (i2 in count..book4.size.minus(1)) {
+                                    val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                    val book7 =
+                                        ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                            book9.replace("""§.""".toRegex(), "")))
+                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Text("§eClick to open!"))).currentComponent
+                                    book8.addExtra(book7)
+                                }
+                                book5 += book8
+                                continue
+                            } else {
+                                val book8: BaseComponent = TextComponent()
+                                for (i2 in 0..book4.size.minus(1)) {
+                                    val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                    val book7 =
+                                        ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                            book9.replace("""§.""".toRegex(), "")))
+                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Text("§eClick to open!"))).currentComponent
+                                    book8.addExtra(book6)
+                                    book8.addExtra(book7)
+                                }
+                                val book6 =
+                                    ComponentBuilder(book3[book3.size.minus(1)]).currentComponent
+                                book8.addExtra(book6)
+                                book5 += book8
+                                continue
+                            }
+                        }
+                    } else {
+                        if(book4.size == 0){
+                            if (book3.size == book42.size) {
+                                val book8: BaseComponent = TextComponent()
+                                for (i2 in 0..book3.size.minus(1)) {
+                                    val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                    val book7 =
+                                        ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                            book9.replace("""(§.)""".toRegex(), "")))
+                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                    book8.addExtra(book6)
+                                    book8.addExtra(book7)
+                                }
+                                book5 += book8
+                                continue
+                            } else {
+                                if (book42.size > book3.size) {
+                                    val book8: BaseComponent = TextComponent()
+                                    val count = 0
+                                    for (i2 in 0..book3.size.minus(1)) {
+                                        val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                        val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                        val book7 =
+                                            ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                book9.replace("""(§.)""".toRegex(), "")))
+                                                .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                    Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                        book8.addExtra(book6)
+                                        book8.addExtra(book7)
+                                        count.plus(1)
+                                    }
+                                    for (i2 in count..book42.size.minus(1)) {
+                                        val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                        val book7 =
+                                            ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                book9.replace("""(§.)""".toRegex(), "")))
+                                                .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                    Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                        book8.addExtra(book7)
+                                    }
+                                    book5 += book8
+                                    continue
+                                } else {
+                                    val book8: BaseComponent = TextComponent()
+                                    for (i2 in 0..book42.size.minus(1)) {
+                                        val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                        val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                        val book7 =
+                                            ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                book9.replace("""(§.)""".toRegex(), "")))
+                                                .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                    Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                        book8.addExtra(book6)
+                                        book8.addExtra(book7)
+                                    }
+                                    val book6 =
+                                        ComponentBuilder(book3[book3.size.minus(1)]).currentComponent
+                                    book8.addExtra(book6)
+                                    book5 += book8
+                                    continue
+                                }
+                            }
+                        } else {
+                            return
+                        }
+                    }
+                } else {
+                    if (book4.size == 0){
+                        if (book41.size == book3.size){
+                            val book8: BaseComponent = TextComponent()
+                            for (i2 in 0..book3.size.minus(1)) {
+                                val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                val book7 =
+                                    ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                        book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                book8.addExtra(book6)
+                                book8.addExtra(book7)
+                            }
+                            book5 += book8
+                            continue
+                        } else {
+                            if (book41.size > book3.size){
+                                val book8: BaseComponent = TextComponent()
+                                val count = 0
+                                for (i2 in 0..book3.size.minus(1)){
+                                    val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                    val book7 =
+                                        ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                            book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                            Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                    book8.addExtra(book6)
+                                    book8.addExtra(book7)
+                                    count.plus(1)
+                                }
+                                for (i2 in count..book41.size.minus(1)){
+                                    val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                    val book7 =
+                                        ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                            book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                            Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                    book8.addExtra(book7)
+                                }
+                                book5 += book8
+                                continue
+                            } else {
+                                val book8: BaseComponent = TextComponent()
+                                val count = 0
+                                for (i2 in 0..book41.size.minus(1)){
+                                    val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                    val book7 =
+                                        ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                            book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                            Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                    book8.addExtra(book6)
+                                    book8.addExtra(book7)
+                                    count.plus(1)
+                                }
+                                val book6 = ComponentBuilder(book3[book3.size.minus(1)]).currentComponent
+                                book8.addExtra(book6)
+                                book5 += book8
+                                continue
+                            }
+                        }
+                    }
+                    return
+                }
+            }
+            for (i2 in 0..book5.size.minus(1)){
+                book.spigot().setPage(i2.plus(1),book5[i2])
+            }
+            book00.itemMeta = book
+            bookcash[booklist3[i5]] = book00
+        }
+
     }
 
     override fun onTabComplete(
@@ -38,6 +263,7 @@ class Main : JavaPlugin() {
             if (args.size == 1) {
                 if (args[0].isEmpty()) {
                     return Arrays.asList("open","booklist","color")
+                    //return Arrays.asList("open","test") //テスト用
                 } else {
                     //入力されている文字列と先頭一致
                     when (args[0].isNotEmpty()) {
@@ -106,8 +332,8 @@ class Main : JavaPlugin() {
                     if (hasPerm(sender, command.permission.toString() + ".open")) { //open権限はあるか？
                         if (args.getOrNull(1) != null) { // oyasainews openの後に引数は？
                             //引数がある場合
-                            val book = config.getItemStack(args[1])
-                            if (book != null) { // [BookName]にデータはあるか？
+                            val book = bookcash[args[1]]
+                            if (book != null) { // bookcashにデータはあるか？
                                 // データが有る場合
                                 sender.openBook(book) //権限がある場合本を開く
                                 if (args[1] == "main") { // oyasainews open mainであるか？
@@ -167,11 +393,221 @@ class Main : JavaPlugin() {
                             val book: BookMeta = item.itemMeta as BookMeta
                             val newbmeta = ChatColor.translateAlternateColorCodes('$', book.pages.toString().removePrefix("[").removeSuffix("]"))
                             val newbook0 = newbmeta.split(", ").toList()
-                            book.pages = newbook0
-                            item.itemMeta = book
-                            sender.sendMessage("自動でColorコード($)変換しました！")
-                            if (args.getOrNull(1) != null) { // oyasainews addの後に引数は？
-                                //引数がある場合
+                            val url = """\[(§.)?http.*(§.)?]""".toRegex()
+                            val table = """\[.*]\[[0-9]*]""".toRegex()
+                            val cmd = """\{(§.)?/.*(§.)?}""".toRegex()
+                            val urlandtable = """(\[(§.)?http.*(§.)?]|\[.*]\[[0-9]*]|\{(§.)?/.*(§.)?})""".toRegex()
+                            var book5 = arrayOf<BaseComponent>()
+                            for (i in 0..newbook0.size.minus(1)) {
+                                val book3 = newbook0[i].split(urlandtable)
+                                val book4 = url.findAll(newbook0[i]).toList()
+                                val book41 = table.findAll(newbook0[i]).toList()
+                                val book42 = cmd.findAll(newbook0[i]).toList()
+                                if (book41.size == 0) {
+                                    if (book42.size == 0) {
+                                        if (book3.size == book4.size) {
+                                            val book8: BaseComponent = TextComponent()
+                                            for (i2 in 0..book3.size.minus(1)) {
+                                                val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                                val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                val book7 =
+                                                    ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                                        book9.replace("""(§.)""".toRegex(), "")))
+                                                        .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                            Text("§eClick to open!"))).currentComponent
+                                                book8.addExtra(book6)
+                                                book8.addExtra(book7)
+                                            }
+                                            book5 += book8
+                                            continue
+                                        } else {
+                                            if (book4.size > book3.size) {
+                                                val book8: BaseComponent = TextComponent()
+                                                val count = 0
+                                                for (i2 in 0..book3.size.minus(1)) {
+                                                    val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                    val book7 =
+                                                        ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                                            book9.replace("""(§.)""".toRegex(), "")))
+                                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                Text("§eClick to open!"))).currentComponent
+                                                    book8.addExtra(book6)
+                                                    book8.addExtra(book7)
+                                                    count.plus(1)
+                                                }
+                                                for (i2 in count..book4.size.minus(1)) {
+                                                    val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                                    val book7 =
+                                                        ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                                            book9.replace("""(§.)""".toRegex(), "")))
+                                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                Text("§eClick to open!"))).currentComponent
+                                                    book8.addExtra(book7)
+                                                }
+                                                book5 += book8
+                                                continue
+                                            } else {
+                                                val book8: BaseComponent = TextComponent()
+                                                for (i2 in 0..book4.size.minus(1)) {
+                                                    val book9 = book4[i2].value.removePrefix("[").removeSuffix("]")
+                                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                    val book7 =
+                                                        ComponentBuilder("[${book9}]").event(ClickEvent(ClickEvent.Action.OPEN_URL,
+                                                            book9.replace("""(§.)""".toRegex(), "")))
+                                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                Text("§eClick to open!"))).currentComponent
+                                                    book8.addExtra(book6)
+                                                    book8.addExtra(book7)
+                                                }
+                                                val book6 =
+                                                    ComponentBuilder(book3[book3.size.minus(1)]).currentComponent
+                                                book8.addExtra(book6)
+                                                book5 += book8
+                                                continue
+                                            }
+                                        }
+                                    } else {
+                                        if(book4.size == 0){
+                                            if (book3.size == book42.size) {
+                                                val book8: BaseComponent = TextComponent()
+                                                for (i2 in 0..book3.size.minus(1)) {
+                                                    val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                    val book7 =
+                                                        ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                            book9.replace("""(§.)""".toRegex(), "")))
+                                                            .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                                    book8.addExtra(book6)
+                                                    book8.addExtra(book7)
+                                                }
+                                                book5 += book8
+                                                continue
+                                            } else {
+                                                if (book42.size > book3.size) {
+                                                    val book8: BaseComponent = TextComponent()
+                                                    val count = 0
+                                                    for (i2 in 0..book3.size.minus(1)) {
+                                                        val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                                        val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                        val book7 =
+                                                            ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                                book9.replace("""(§.)""".toRegex(), "")))
+                                                                .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                    Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                                        book8.addExtra(book6)
+                                                        book8.addExtra(book7)
+                                                        count.plus(1)
+                                                    }
+                                                    for (i2 in count..book42.size.minus(1)) {
+                                                        val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                                        val book7 =
+                                                            ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                                book9.replace("""(§.)""".toRegex(), "")))
+                                                                .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                    Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                                        book8.addExtra(book7)
+                                                    }
+                                                    book5 += book8
+                                                    continue
+                                                } else {
+                                                    val book8: BaseComponent = TextComponent()
+                                                    for (i2 in 0..book42.size.minus(1)) {
+                                                        val book9 = book42[i2].value.removePrefix("{").removeSuffix("}")
+                                                        val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                        val book7 =
+                                                            ComponentBuilder("{${book9}}").event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD,
+                                                                book9.replace("""(§.)""".toRegex(), "")))
+                                                                .event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                                    Text("§eClick to §9copy§e to §2clipboard!"))).currentComponent
+                                                        book8.addExtra(book6)
+                                                        book8.addExtra(book7)
+                                                    }
+                                                    val book6 =
+                                                        ComponentBuilder(book3[book3.size.minus(1)]).currentComponent
+                                                    book8.addExtra(book6)
+                                                    book5 += book8
+                                                    continue
+                                                }
+                                            }
+                                        } else {
+                                            sender.sendMessage("URLとページジャンプとコマンドは同じページで使えません")
+                                            return true
+                                        }
+                                    }
+                                } else {
+                                    if (book4.size == 0){
+                                        if (book41.size == book3.size){
+                                            val book8: BaseComponent = TextComponent()
+                                            for (i2 in 0..book3.size.minus(1)) {
+                                                val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                                val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                val book7 =
+                                                    ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                                        book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                        Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                                book8.addExtra(book6)
+                                                book8.addExtra(book7)
+                                            }
+                                            book5 += book8
+                                            continue
+                                        } else {
+                                            if (book41.size > book3.size){
+                                                val book8: BaseComponent = TextComponent()
+                                                val count = 0
+                                                for (i2 in 0..book3.size.minus(1)){
+                                                    val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                    val book7 =
+                                                        ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                                            book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                            Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                                    book8.addExtra(book6)
+                                                    book8.addExtra(book7)
+                                                    count.plus(1)
+                                                }
+                                                for (i2 in count..book41.size.minus(1)){
+                                                    val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                                    val book7 =
+                                                        ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                                            book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                            Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                                    book8.addExtra(book7)
+                                                }
+                                                book5 += book8
+                                                continue
+                                            } else {
+                                                val book8: BaseComponent = TextComponent()
+                                                val count = 0
+                                                for (i2 in 0..book41.size.minus(1)){
+                                                    val book9 = book41[i2].value.replace("]",", ").replace("[","").removeSuffix(", ").split(", ")
+                                                    val book6 = ComponentBuilder(book3[i2]).currentComponent
+                                                    val book7 =
+                                                        ComponentBuilder("[${book9[0]}][${book9[1]}]").event(ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+                                                            book9[1])).event(HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                            Text("§eClick to §a${book9[1]}§epage!"))).currentComponent
+                                                    book8.addExtra(book6)
+                                                    book8.addExtra(book7)
+                                                    count.plus(1)
+                                                }
+                                                val book6 = ComponentBuilder(book3[book3.size.minus(1)]).currentComponent
+                                                book8.addExtra(book6)
+                                                book5 += book8
+                                                continue
+                                            }
+                                        }
+                                    }
+                                    sender.sendMessage("URLとページジャンプとコマンドは同じページで使えません")
+                                    return true
+                                }
+                            }
+                            if (args.getOrNull(1) != null) {
+                                for (i in 0..book5.size.minus(1)){
+                                    book.spigot().setPage(i.plus(1),book5[i])
+                                }
+                                item.itemMeta = book
+                                sender.sendMessage("自動で装飾($)とリンク[http...]とページジャンプ[...][Page]とコマンド{/...}を変換しました！")
                                 if (args[1] == "mainversion"){ //mainversionだった場合キャンセルする
                                     sender.sendMessage("mainversionは変更できません！")
                                     return true
@@ -191,7 +627,8 @@ class Main : JavaPlugin() {
                                     mainbook = item
                                     mainver += 1
                                     config.set("mainversion", mainver); saveConfig()
-                                } //mainじゃない場合スルー
+                                } //mainじゃない場合
+                                bookcash[args[1]] = item
                                 return true
                             } //引数がない場合
                             sender.sendMessage("/$label add [BookName]\nBookNameの部分が足りません！")
@@ -207,8 +644,8 @@ class Main : JavaPlugin() {
                     if(hasPerm(sender,command.permission.toString()+".get")) { //get権限はあるか？
                         if (args.getOrNull(1) != null) { // 権限があって、oyasainews getの後に引数は？
                             //引数がある場合
-                            val book = config.getItemStack(args[1])
-                            if (book != null) { // [BookName]にデータはあるか？
+                            val book = bookcash[args[1]]
+                            if (book != null) { // bookcashにデータはあるか？
                                 //データが有る場合
                                 val bookmeta = book.itemMeta
                                 val editbook = ItemStack(Material.WRITABLE_BOOK)
@@ -237,6 +674,7 @@ class Main : JavaPlugin() {
                             }
                             val book = config.getItemStack(args[1])
                             if (book != null) { // [BookName]にデータはあるか？
+                                bookcash.minus(args[1])
                                 config.set(args[1], null); saveConfig()
                                 sender.sendMessage("${args[1]}を消去しました")
                                 return true
