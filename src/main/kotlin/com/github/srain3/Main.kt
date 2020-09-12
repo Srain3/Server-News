@@ -19,7 +19,11 @@ class Main : JavaPlugin() {
     //変数作成
     lateinit var mainbook: ItemStack
     var mainver = 0
+<<<<<<< Updated upstream
     private var bookcash = mutableMapOf<String,ItemStack>()
+=======
+    var bookcash = mutableMapOf<String,ItemStack>()
+>>>>>>> Stashed changes
 
     override fun onEnable() {
         saveDefaultConfig() //configがなければ作成
@@ -28,6 +32,7 @@ class Main : JavaPlugin() {
         mainver = config.getInt("mainversion") //mainversionのIntデータを読み込み
         server.pluginManager.registerEvents(JoinOpenBook, this) //イベント登録(JoinEventで本を開く)
         JoinOpenBook.joinEv(this) //JoinOpenBook内のfun joinEvにmainを渡す
+<<<<<<< Updated upstream
         val booklist0 = config.getKeys(false)
         val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
         val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
@@ -250,6 +255,9 @@ class Main : JavaPlugin() {
             bookcash[booklist3[i5]] = book00
         }
 
+=======
+        bookcash = ConvertAddBooks.addbooks(bookcash,this)
+>>>>>>> Stashed changes
     }
 
     override fun onTabComplete(
@@ -263,7 +271,6 @@ class Main : JavaPlugin() {
             if (args.size == 1) {
                 if (args[0].isEmpty()) {
                     return Arrays.asList("open","booklist","color")
-                    //return Arrays.asList("open","test") //テスト用
                 } else {
                     //入力されている文字列と先頭一致
                     when (args[0].isNotEmpty()) {
@@ -273,6 +280,7 @@ class Main : JavaPlugin() {
                         "add".startsWith(args[0]) -> return Arrays.asList("add")
                         "get".startsWith(args[0]) -> return Arrays.asList("get")
                         "remove".startsWith(args[0]) -> return Arrays.asList("remove")
+                        "test".startsWith(args[0]) -> return Arrays.asList("test")
                         else -> {
                             //JavaPlugin#onTabComplete()を呼び出す
                             return super.onTabComplete(sender, command, alias, args)
@@ -630,8 +638,24 @@ class Main : JavaPlugin() {
                                 } //mainじゃない場合
                                 bookcash[args[1]] = item
                                 return true
+<<<<<<< Updated upstream
                             } //引数がない場合
                             sender.sendMessage("/$label add [BookName]\nBookNameの部分が足りません！")
+=======
+                            }
+                            val newbook = ConvertAddBooks.convertbooks(item)
+                            sender.sendMessage("装飾($)リンク[http...]ページジャンプ[...][Page]コマンド[/...]を変換！")
+                            bookcash[args[1]] = newbook
+                            config.set(args[1], newbook); saveConfig() // configへセーブ
+                            sender.sendMessage("${args[1]}を上書きしました")
+                            if (args[1] == "main") { // oyasainews add mainか？
+                                // mainである場合、関数mainbookを更新&mainversionカウントを増やす&configへ保存
+                                mainbook = item
+                                mainver += 1
+                                config.set("mainversion", mainver); saveConfig()
+                            } //mainじゃない場合
+                            bookcash[args[1]] = item
+>>>>>>> Stashed changes
                             return true
                         } //記入済みの本以外の場合
                         sender.sendMessage("記入済みの本を持って登録して下さい！")
@@ -697,10 +721,25 @@ class Main : JavaPlugin() {
                     sender.sendMessage("権限がありません！")
                     return true
                 }
+<<<<<<< Updated upstream
+=======
+                /* 必要のないオプション、だけど使うかもしれないのでコメントアウト
+                "reload" ->{
+                    if(hasPerm(sender,command.permission.toString()+".reload")) {
+                        bookcash = mutableMapOf()
+                        bookcash = ConvertAddBooks.addbooks(bookcash, this)
+                        sender.sendMessage("データをリロードしました")
+                        return true
+                    }
+                    sender.sendMessage("権限がありません！")
+                    return true
+                }
+>>>>>>> Stashed changes
                 else -> { //引数がヒットしない場合
                     sender.sendMessage("無効なオプションです")
                     return true
                 }
+                 */
             }
         } // コマンド送信元がPlayerじゃない場合
         sender.sendMessage("プレイヤーのみ実行可能です")

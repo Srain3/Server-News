@@ -1,6 +1,10 @@
 name: Server-News
 main: com.github.srain3.Main
+<<<<<<< Updated upstream
 version: "1.2.1"
+=======
+version: "1.2.2"
+>>>>>>> Stashed changes
 api-version: "1.16"
 author: Srain3
 description: "お知らせ用の本を登録/入手できるプラグイン"
