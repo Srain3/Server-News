@@ -14,7 +14,7 @@ object ConvertAddBooks {
         val booklist3 = booklist2.filterNot { it == "playerdata" }
         for (i in 0..booklist3.size.minus(1)) {
             val book = main.config.getItemStack(booklist3[i])!!
-            val newbook = convertbooks(book1 = book)
+            val newbook = convertbooks(book)
             bookc[booklist3[i]] = newbook
         }
         return bookc
