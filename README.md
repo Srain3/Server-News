@@ -60,3 +60,12 @@
  例えばリンクの色を変えたい時は\[$1$lhttp...$0$r]のように書けば<br>
  その部分の色を自由に変えることが出来ます！<br>
  ちなみに色を後ろの部分で戻さないと次の文章に色が...ね。<br>
+ <br>
+ v1.2.4で追加された機能は主に管理向け<br>
+ \#...\#という形でbookを登録すると、mask出来ます。<br>
+ maskとは、追加コマンド「/onews notmask (playername) (true/false)」<br>
+ でtrueになったプレイヤーのみ見れる機能です。<br>
+ デフォルトは皆falseなので、maskした本を見せたい場合はnotmaskをtrueにするだけ<br>
+ notmask権限はOP(Permissionは.admin紐付け)<br>
+ ですがconfigにプレイヤーのnotmaskのtrue/falseは記録されるので<br>
+ マイクラ内でLuckParmsを通さずmaskを見せることも可能です。<br>

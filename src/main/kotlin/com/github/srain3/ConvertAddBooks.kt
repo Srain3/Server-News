@@ -12,10 +12,11 @@ object ConvertAddBooks {
         val booklist1 = booklist0.filterNot { it == "mainversion" }
         val booklist2 = booklist1.filterNot { it == "spawnlocation" }
         val booklist3 = booklist2.filterNot { it == "playerdata" }
-        for (i in 0..booklist3.size.minus(1)) {
-            val book = main.config.getItemStack(booklist3[i])!!
-            val newbook = convertbooks(book)
-            bookc[booklist3[i]] = newbook
+        val booklist4 = booklist3.filterNot { it == "notmask" }
+        for (i in 0..booklist4.size.minus(1)) {
+            val book = main.config.getItemStack(booklist4[i])!!
+            val newbook = convertbooks(book.clone())
+            bookc[booklist4[i]] = newbook
         }
         return bookc
     }
@@ -34,6 +35,7 @@ object ConvertAddBooks {
         val cmdtext = "§eClick to §9copy §6"
         val cmdtext2 = "\n§eOpen chatbox to KEY[ctrl]+[V] to Paste"
         val notcolor = """(§.)*""".toRegex()
+        val nottable = """]\[(§.)*[0-9]*(§.)*""".toRegex()
         var newbooklist = arrayOf<BaseComponent>()
         var urlcount : Int ; var tablecount : Int ; var cmdcount : Int
         for (page in 0..booklist.size.minus(1)) {
@@ -49,7 +51,7 @@ object ConvertAddBooks {
                     val text0 = ComponentBuilder(text1).currentComponent
                     bookblocks.addExtra(text0)
                     val urllink = urls[urlcount].value.removePrefix("[").removeSuffix("]").replace(notcolor, "")
-                    val url0 = ComponentBuilder(urls[urlcount].value).event(ClickEvent(ClickEvent.Action.OPEN_URL, urllink))
+                    val url0 = ComponentBuilder(urls[urlcount].value.removePrefix("[").removeSuffix("]")).event(ClickEvent(ClickEvent.Action.OPEN_URL, urllink))
                         .event(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text(urltext))).currentComponent
                     bookblocks.addExtra(url0)
                     urlcount = urlcount.plus(1)
@@ -59,7 +61,7 @@ object ConvertAddBooks {
                         val text0 = ComponentBuilder(text1).currentComponent
                         bookblocks.addExtra(text0)
                         val hovertext = tables[tablecount].value.removePrefix("[").removeSuffix("]").replace(notcolor, "").split("][")
-                        val table0 = ComponentBuilder(tables[tablecount].value).event(ClickEvent(ClickEvent.Action.CHANGE_PAGE, hovertext[1]))
+                        val table0 = ComponentBuilder(tables[tablecount].value.removePrefix("[").removeSuffix("]").replace(nottable, "")).event(ClickEvent(ClickEvent.Action.CHANGE_PAGE, hovertext[1]))
                             .event(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text("${tabletext1}${hovertext[1]}${tabletext2}"))).currentComponent
                         bookblocks.addExtra(table0)
                         tablecount = tablecount.plus(1)
@@ -69,7 +71,7 @@ object ConvertAddBooks {
                             val text0 = ComponentBuilder(text1).currentComponent
                             bookblocks.addExtra(text0)
                             val cmdname = cmds[cmdcount].value.removePrefix("[").removeSuffix("]").replace(notcolor, "")
-                            val cmd0 = ComponentBuilder(cmds[cmdcount].value).event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, cmdname))
+                            val cmd0 = ComponentBuilder(cmds[cmdcount].value.removePrefix("[").removeSuffix("]")).event(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, cmdname))
                                 .event(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text("${cmdtext}${cmdname}${cmdtext2}"))).currentComponent
                             bookblocks.addExtra(cmd0)
                             cmdcount = cmdcount.plus(1)

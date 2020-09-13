@@ -17,6 +17,8 @@ class Main : JavaPlugin() {
     //変数作成
     var mainver = 0
     var bookcash = mutableMapOf<String,ItemStack>()
+    private lateinit var booklistnomal : List<String>
+    private lateinit var booklistnotmask : List<String>
 
     override fun onEnable() {
         saveDefaultConfig() //configがなければ作成
@@ -25,6 +27,27 @@ class Main : JavaPlugin() {
         mainver = config.getInt("mainversion") //mainversionのIntデータを読み込み
         server.pluginManager.registerEvents(JoinOpenBook, this) //イベント登録(JoinEventで本を開く)
         JoinOpenBook.joinEv(this) //JoinOpenBook内のfun joinEvにmainを渡す
+        reloadbooklists()
+    }
+
+    val luckperms = LuckPermsProvider.get()
+    private fun hasPerm(p: Player, permission: String): Boolean {
+        if (!p.isOnline) throw IllegalArgumentException("Player is Offile")
+        val user = luckperms.userManager.getUser(p.uniqueId)!!
+        val contextManager: ContextManager = luckperms.contextManager
+        val contextSet = contextManager.getContext(user).orElseGet { contextManager.staticContext }
+        val permissionData = user.cachedData.getPermissionData(QueryOptions.contextual(contextSet))
+        return permissionData.checkPermission(permission).asBoolean()
+    }
+
+    private fun reloadbooklists(){
+        val booklist0 = config.getKeys(false)
+        val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
+        val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
+        val booklist3 = booklist2.filterNot { it == "notmask" }
+        booklistnotmask = booklist3.filterNot { it == "playerdata" } //いらないplayerdataを除外
+        booklistnomal = booklistnotmask.toString().replace("""(, )?#[^#]*#""".toRegex(), "").removePrefix("[").removeSuffix("]").split(", ")
+        return
     }
 
     override fun onTabComplete(
@@ -55,21 +78,30 @@ class Main : JavaPlugin() {
                 }
             }
             if (args.size == 2){
-                val booklist0 = config.getKeys(false)
-                val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
-                val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
-                val booklist3 = booklist2.filterNot { it == "playerdata" } //いらないplayerdataを除外
+                if (config.getBoolean("notmask.${sender.name}", false)) {
+                    if (args[1].isNotEmpty()) {
+                        val size = booklistnotmask.size.minus(1)
+                        val books = mutableListOf<String>()
+                        for (i in 0..size) {
+                            if (booklistnotmask[i].startsWith(args[1])) {
+                                books.add(booklistnotmask[i])
+                            }
+                        }
+                        return books.toMutableList()
+                    }
+                    return booklistnotmask.toMutableList()
+                }
                 if (args[1].isNotEmpty()) {
-                    val size = booklist3.size.minus(1)
+                    val size = booklistnomal.size.minus(1)
                     val books = mutableListOf<String>()
                     for (i in 0..size) {
-                        if (booklist3[i].startsWith(args[1])) {
-                            books.add(booklist3[i])
+                        if (booklistnomal[i].startsWith(args[1])) {
+                            books.add(booklistnomal[i])
                         }
                     }
                     return books.toMutableList()
                 }
-                return booklist3.toMutableList()
+                return booklistnomal.toMutableList()
             }
         }
         return null
@@ -79,15 +111,6 @@ class Main : JavaPlugin() {
         // oyasainewsコマンドを受け取ったら
         if (sender is Player) { // コマンド送信元はPlayerか？
             // コマンド送信元がPlayerの場合
-            val luckperms = LuckPermsProvider.get()
-            fun hasPerm(p: Player, permission: String): Boolean {
-                if (!p.isOnline) throw IllegalArgumentException("Player is Offile")
-                val user = luckperms.userManager.getUser(p.uniqueId)!!
-                val contextManager: ContextManager = luckperms.contextManager
-                val contextSet = contextManager.getContext(user).orElseGet { contextManager.staticContext }
-                val permissionData = user.cachedData.getPermissionData(QueryOptions.contextual(contextSet))
-                return permissionData.checkPermission(permission).asBoolean()
-            }
             if (args.isNullOrEmpty()) { // oyasainewsの後に引数は？
                 // 引数がない場合
                 if (hasPerm(sender, command.permission.toString() + ".open")) { //open権限はあるか？
@@ -106,7 +129,13 @@ class Main : JavaPlugin() {
                     if (hasPerm(sender, command.permission.toString() + ".open")) { //open権限はあるか？
                         if (args.getOrNull(1) != null) { // oyasainews openの後に引数は？
                             //引数がある場合
-                            val book = bookcash[args[1]]
+                            val bookmask: String
+                            if (config.getBoolean("notmask.${sender.name}", false)){
+                                bookmask = args[1]
+                            } else {
+                                bookmask = args[1].replace("""(, )?#[^#]*#""".toRegex(), "")
+                            }
+                            val book = bookcash[bookmask]
                             if (book != null) { // bookcashにデータはあるか？
                                 // データが有る場合
                                 sender.openBook(book) //権限がある場合本を開く
@@ -130,11 +159,11 @@ class Main : JavaPlugin() {
                 }
                 "booklist" -> { // oyasainews booklistである場合
                     if (hasPerm(sender, command.permission.toString() + ".booklist")) { //booklist権限は？
-                        val booklist0 = config.getKeys(false)
-                        val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
-                        val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
-                        val booklist = booklist2.filterNot { it == "playerdata" } //いらないplayerdataを除外
-                        sender.sendMessage(booklist.toString())
+                        if (config.getBoolean("notmask", false)){
+                            sender.sendMessage(booklistnotmask.toString())
+                            return true
+                        }
+                        sender.sendMessage(booklistnomal.toString())
                         return true
                     } // 権限がない場合
                     sender.sendMessage("権限がありません！")
@@ -165,7 +194,9 @@ class Main : JavaPlugin() {
                         if (args.getOrNull(1) != null) {
                             val item = sender.inventory.itemInMainHand // 権限があればメインハンドのアイテム入手
                             if (item.type == Material.WRITTEN_BOOK) { //アイテムは記入済みの本？
-                                val newbook = ConvertAddBooks.convertbooks(item)
+                                config.set(args[1], item); saveConfig()
+                                val olditem = item.clone()
+                                val newbook = ConvertAddBooks.convertbooks(olditem)
                                 when (args[1]) {
                                     "mainversion" -> {
                                         sender.sendMessage("mainversionは変更できません！");return true
@@ -180,8 +211,9 @@ class Main : JavaPlugin() {
                                     }
                                 }
                                 bookcash[args[1]] = newbook
-                                config.set(args[1], newbook); saveConfig()
+                                sender.inventory.setItemInOffHand(newbook)
                                 sender.sendMessage("${args[1]}を上書きしました")
+                                reloadbooklists()
                                 if (args[1] == "main") {
                                     mainver += 1
                                     config.set("mainversion", mainver); saveConfig()
@@ -199,7 +231,7 @@ class Main : JavaPlugin() {
                     if(hasPerm(sender,command.permission.toString()+".get")) { //get権限はあるか？
                         if (args.getOrNull(1) != null) { // 権限があって、oyasainews getの後に引数は？
                             //引数がある場合
-                            val book = bookcash[args[1]]
+                            val book = config.getItemStack(args[1])
                             if (book != null) { // bookcashにデータはあるか？
                                 //データが有る場合
                                 val bookmeta = book.itemMeta
@@ -232,6 +264,7 @@ class Main : JavaPlugin() {
                                 bookcash.minus(args[1])
                                 config.set(args[1], null); saveConfig()
                                 sender.sendMessage("${args[1]}を消去しました")
+                                reloadbooklists()
                                 return true
                             } //データがない場合
                             sender.sendMessage("${args[1]}は存在しないため消去できません")
@@ -240,6 +273,32 @@ class Main : JavaPlugin() {
                         sender.sendMessage("/${label} remove [BookName]\nBookNameの部分が足りません！")
                         return true
                     } //remove権限がない場合
+                    sender.sendMessage("権限がありません！")
+                    return true
+                }
+                "notmask" -> {
+                    if(hasPerm(sender,command.permission.toString()+".admin")) {
+                        if (args.size==3) {
+                            when (args[2]) {
+                                "false" -> {
+                                    config.set("notmask.${args[1]}", false) ; saveConfig()
+                                    sender.sendMessage("${args[1]}のnotmaskをfalseにしました(#...#を非表示にする)")
+                                    return true
+                                }
+                                "true" -> {
+                                    config.set("notmask.${args[1]}", true) ; saveConfig()
+                                    sender.sendMessage("${args[1]}のnotmaskをtrueにしました(#...#を表示する)")
+                                    return true
+                                }
+                                else -> {
+                                    sender.sendMessage("true もしくは false を指定して下さい")
+                                    return true
+                                }
+                            }
+                        }
+                        sender.sendMessage("引数不足です！")
+                        return true
+                    }
                     sender.sendMessage("権限がありません！")
                     return true
                 }
@@ -252,24 +311,9 @@ class Main : JavaPlugin() {
                     sender.sendMessage("権限がありません！")
                     return true
                 }
-                /* 必要のないオプション、だけど使うかもしれないのでコメントアウト
-                "reload" ->{
-                    if(hasPerm(sender,command.permission.toString()+".reload")) {
-                        bookcash = mutableMapOf()
-                        bookcash = ConvertAddBooks.addbooks(bookcash, this)
-                        sender.sendMessage("データをリロードしました")
-                        return true
-                    }
-                    sender.sendMessage("権限がありません！")
-                    return true
-                }
->>>>>>> Stashed changes
-                else -> { //引数がヒットしない場合
-                    sender.sendMessage("無効なオプションです")
-                    return true
-                }
-                 */
             }
+            sender.sendMessage("無効なオプションです")
+            return true
         } // コマンド送信元がPlayerじゃない場合
         sender.sendMessage("プレイヤーのみ実行可能です")
         return false
