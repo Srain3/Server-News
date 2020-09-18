@@ -29,22 +29,25 @@ object ConvertAddBooks {
         val url = """\[(§.)*http(s)?://([^\[\]]*)]""".toRegex()
         val table = """\[[^\[]*]\[(§.)*[0-9]*(§.)*]""".toRegex()
         val cmd = """\[(§.)*(/[^\[\]]*)]""".toRegex()
+        val jumpcmd = """\[[^\[]*:/[^]]*]""".toRegex()
         val urltext = "§eClick to open!"
         val tabletext1 = "§eClick to §a"
         val tabletext2 = "§epage!"
         val cmdtext = "§eClick to §9copy §6"
         val cmdtext2 = "\n§eOpen chatbox to KEY[ctrl]+[V] to Paste"
+        val jcmdtext = "§eClick to run command\n"
         val notcolor = """(§.)*""".toRegex()
         val nottable = """]\[(§.)*[0-9]*(§.)*""".toRegex()
         var newbooklist = arrayOf<BaseComponent>()
-        var urlcount : Int ; var tablecount : Int ; var cmdcount : Int
+        var urlcount : Int ; var tablecount : Int ; var cmdcount : Int ; var jcmdcount : Int
         for (page in 0..booklist.size.minus(1)) {
             val bookblocks: BaseComponent = TextComponent()
-            val strings = booklist[page].replace(url,"u-r-l-0, ").replace(table,"ta-b-le-0, ").replace(cmd,"c-m-d-0, ").removeSuffix(", ").split(", ")
+            val strings = booklist[page].replace(url,"u-r-l-0, ").replace(table,"ta-b-le-0, ").replace(cmd,"c-m-d-0, ").replace(jumpcmd,"c-m-d-j-0, ").removeSuffix(", ").split(", ")
             val urls = url.findAll(booklist[page]).toList()
             val tables = table.findAll(booklist[page]).toList()
             val cmds = cmd.findAll(booklist[page]).toList()
-            urlcount = 0 ; tablecount = 0 ; cmdcount = 0
+            val jcmds = jumpcmd.findAll(booklist[page]).toList()
+            urlcount = 0 ; tablecount = 0 ; cmdcount = 0 ; jcmdcount = 0
             for (block in 0..strings.size.minus(1)){
                 if (strings[block].lastIndexOf("u-r-l-0")!= -1){
                     val text1 = strings[block].removeSuffix("u-r-l-0")
@@ -76,9 +79,20 @@ object ConvertAddBooks {
                             bookblocks.addExtra(cmd0)
                             cmdcount = cmdcount.plus(1)
                         } else {
-                            val text1 = strings[block]
-                            val text0 = ComponentBuilder(text1).currentComponent
-                            bookblocks.addExtra(text0)
+                            if (strings[block].lastIndexOf("c-m-d-j-0")!= -1){
+                                val text1 = strings[block].removeSuffix("c-m-d-j-0")
+                                val text0 = ComponentBuilder(text1).currentComponent
+                                bookblocks.addExtra(text0)
+                                val jcmdname = jcmds[jcmdcount].value.removePrefix("[").removeSuffix("]").split(":")
+                                val jcmd0 = ComponentBuilder(jcmdname[0]).event(ClickEvent(ClickEvent.Action.RUN_COMMAND, jcmdname[1])).event(
+                                    HoverEvent(HoverEvent.Action.SHOW_TEXT, Text("${jcmdtext}§6${jcmdname[1]}"))).currentComponent
+                                bookblocks.addExtra(jcmd0)
+                                jcmdcount = jcmdcount.plus(1)
+                            } else {
+                                val text1 = strings[block]
+                                val text0 = ComponentBuilder(text1).currentComponent
+                                bookblocks.addExtra(text0)
+                            }
                         }
                     }
                 }

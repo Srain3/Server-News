@@ -30,16 +30,6 @@ class Main : JavaPlugin() {
         reloadbooklists()
     }
 
-    val luckperms = LuckPermsProvider.get()
-    private fun hasPerm(p: Player, permission: String): Boolean {
-        if (!p.isOnline) throw IllegalArgumentException("Player is Offile")
-        val user = luckperms.userManager.getUser(p.uniqueId)!!
-        val contextManager: ContextManager = luckperms.contextManager
-        val contextSet = contextManager.getContext(user).orElseGet { contextManager.staticContext }
-        val permissionData = user.cachedData.getPermissionData(QueryOptions.contextual(contextSet))
-        return permissionData.checkPermission(permission).asBoolean()
-    }
-
     private fun reloadbooklists(){
         val booklist0 = config.getKeys(false)
         val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
@@ -111,6 +101,15 @@ class Main : JavaPlugin() {
         // oyasainewsコマンドを受け取ったら
         if (sender is Player) { // コマンド送信元はPlayerか？
             // コマンド送信元がPlayerの場合
+            val luckperms = LuckPermsProvider.get()
+            fun hasPerm(p: Player, permission: String): Boolean {
+                if (!p.isOnline) throw IllegalArgumentException("Player is Offile")
+                val user = luckperms.userManager.getUser(p.uniqueId)!!
+                val contextManager: ContextManager = luckperms.contextManager
+                val contextSet = contextManager.getContext(user).orElseGet { contextManager.staticContext }
+                val permissionData = user.cachedData.getPermissionData(QueryOptions.contextual(contextSet))
+                return permissionData.checkPermission(permission).asBoolean()
+            }
             if (args.isNullOrEmpty()) { // oyasainewsの後に引数は？
                 // 引数がない場合
                 if (hasPerm(sender, command.permission.toString() + ".open")) { //open権限はあるか？
@@ -159,7 +158,7 @@ class Main : JavaPlugin() {
                 }
                 "booklist" -> { // oyasainews booklistである場合
                     if (hasPerm(sender, command.permission.toString() + ".booklist")) { //booklist権限は？
-                        if (config.getBoolean("notmask", false)){
+                        if (config.getBoolean("notmask.${sender.name}", false)){
                             sender.sendMessage(booklistnotmask.toString())
                             return true
                         }
