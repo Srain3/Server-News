@@ -13,10 +13,12 @@ object ConvertAddBooks {
         val booklist2 = booklist1.filterNot { it == "spawnlocation" }
         val booklist3 = booklist2.filterNot { it == "playerdata" }
         val booklist4 = booklist3.filterNot { it == "notmask" }
-        for (i in 0..booklist4.size.minus(1)) {
-            val book = main.config.getItemStack(booklist4[i])!!
+        val booklist5 = booklist4.filterNot { it == "tutolocation"}
+        val booklist6 = booklist5.filterNot { it == "tutolook" }
+        for (i in 0..booklist6.size.minus(1)) {
+            val book = main.config.getItemStack(booklist6[i])!!
             val newbook = convertbooks(book.clone())
-            bookc[booklist4[i]] = newbook
+            bookc[booklist6[i]] = newbook
         }
         return bookc
     }

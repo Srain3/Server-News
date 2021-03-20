@@ -36,7 +36,11 @@ class Main : JavaPlugin() {
         val booklist1 = booklist0.filterNot { it == "mainversion" }//いらないmainversionを除外
         val booklist2 = booklist1.filterNot { it == "spawnlocation" } //いらないspawnlocationを除外
         val booklist3 = booklist2.filterNot { it == "notmask" }
-        booklistnotmask = booklist3.filterNot { it == "playerdata" } //いらないplayerdataを除外
+        //チュートリアル対応コード
+        val booklist4 = booklist3.filterNot { it == "tutolocation"}
+        val booklist5 = booklist4.filterNot { it == "tutolook" }
+        //チュートリアル対応コードend
+        booklistnotmask = booklist5.filterNot { it == "playerdata" } //いらないplayerdataを除外
         booklistnomal = booklistnotmask.toString().replace("""(, )?#[^#]*#""".toRegex(), "").removePrefix("[").removeSuffix("]").split(", ")
         return
     }
@@ -356,6 +360,16 @@ class Main : JavaPlugin() {
                         sender.sendMessage("権限がありません！")
                         return true
                     }
+                    //チュートリアル対応コード
+                    "settuto" -> {
+                        if (hasPerm(sender, command.permission.toString() + ".setspawn")) { //setspawn権限流用
+                            config.set("tutolocation", sender.location); saveConfig()
+                            sender.sendMessage("tutoのlocationを保存しました！")
+                            return true
+                        }
+                        sender.sendMessage("権限がありません！")
+                        return true
+                    } //チュートリアル対応コードend
                 }
                 sender.sendMessage("無効なオプションです")
                 return true
