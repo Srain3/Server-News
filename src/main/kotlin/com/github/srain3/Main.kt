@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.github.srain3
 
 import net.luckperms.api.LuckPermsProvider
@@ -115,7 +117,7 @@ class Main : JavaPlugin() {
                     val permissionData = user.cachedData.getPermissionData(QueryOptions.contextual(contextSet))
                     return permissionData.checkPermission(permission).asBoolean()
                 }
-                if (args.isNullOrEmpty()) { // oyasainewsの後に引数は？
+                if (args.isEmpty()) { // oyasainewsの後に引数は？
                     // 引数がない場合
                     if (hasPerm(sender, command.permission.toString() + ".open")) { //open権限はあるか？
                         if (GeyserConnector.getInstance().getPlayerByUuid(sender.uniqueId) == null) { //BE版ならfalse、Javaならnullでtrue

@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.scheduler.BukkitRunnable
 
 object JoinOpenBook: Listener {
     private lateinit var main1: Main //この中でMainクラスを使うための(空の)変数設定
@@ -18,15 +19,19 @@ object JoinOpenBook: Listener {
             main1.config.set("spawnlocation",e.player.location) ; main1.saveConfig() //configにjoinしたプレイヤーのlocation登録して処理を止める
             return
         } //ある場合スルー
-        //チュートリアル対応コード
-        if(main1.config.get("tutolocation", false) == false){ //tutolocationがない場合
-            main1.config.set("tutolocation", e.player.location) ; main1.saveConfig() //configにjoinしたプレイヤーのlocation登録して処理を止める
-            return
-        }
-        if (main1.config.getInt("tutolook.${e.player.name}", 0) == 0){ //configのtutolookで見たかどうか判断
-            main1.config.getLocation("tutolocation")?.let { e.player.teleport(it) } //tutolocationにテレポートさせる
-            main1.config.set("tutolook.${e.player.name}", 1) ; main1.saveConfig() //configへ見た記録をセーブ
-        } //チュートリアル対応コードend
+        object : BukkitRunnable() {
+            override fun run() {
+                //チュートリアル対応コード
+                if(main1.config.get("tutolocation", false) == false){ //tutolocationがない場合
+                    main1.config.set("tutolocation", e.player.location) ; main1.saveConfig() //configにjoinしたプレイヤーのlocation登録して処理を止める
+                    return
+                }
+                if (main1.config.getInt("tutolook.${e.player.name}", 0) == 0){ //configのtutolookで見たかどうか判断
+                    main1.config.getLocation("tutolocation")?.let { e.player.teleport(it) } //tutolocationにテレポートさせる
+                    main1.config.set("tutolook.${e.player.name}", 1) ; main1.saveConfig() //configへ見た記録をセーブ
+                } //チュートリアル対応コードend
+            }
+        }.runTaskLater(main1, 30)
         /*
         動作テスト用
          */

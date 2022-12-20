@@ -79,3 +79,6 @@ addコマンド時の機能追加で<br>
 v1.3.3～<br>
 tutorial完成後の初ログインだけtutorialに飛ばす機能追加。<br>
 「/onews settuto」でtutorialの飛ばす先を指定可能<br>
+<br>
+v1.3.4～<br>
+tutorialに飛ばす機能が働かないので1.5秒の遅延を入れてみた<br>
